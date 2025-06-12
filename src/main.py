@@ -149,7 +149,6 @@ while running:
         screen.blit(rank_text, ((width/2 - rank_text.get_width()/2) + scroll_offset ,int(270 * scale_factor)))
         screen.blit(text, ((width/2 - text.get_width()/2) + scroll_offset,int(370 * scale_factor)))
         screen.blit(closed_scroll,(int(-3*scale_factor),int(229 * scale_factor)))
-        print(open_scroll.get_width())
     pygame.display.update()
     howManyFrames += 1
     clock.tick(60)
