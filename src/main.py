@@ -2,6 +2,7 @@ import csv
 import pygame
 from character import Character
 from lock_button import LockButton
+from reset_button import ResetButton
 import random
 
 random.seed()
@@ -32,6 +33,11 @@ shading_surf_end.fill((54,54,65))
 closed_scroll = pygame.transform.rotozoom(pygame.image.load("../img/closed_scroll.png"),0,scale_factor)
 open_scroll = pygame.transform.rotozoom(pygame.image.load("../img/open_scroll.png"),0,scale_factor)
 scroll_offset = -open_scroll.get_width()
+reset_width = int(100 * scale_factor)
+reset_height = int(85 * scale_factor)
+reset_x_pos = int(70 * scale_factor)
+reset_y_pos = int(512 * scale_factor)
+reset_button = ResetButton(reset_width,reset_height,reset_x_pos,reset_y_pos,scale_factor)
 # Create and store the characters/shinobi objects
 with open("characters.csv",mode="r") as file:
     csv_reader = csv.DictReader(file)
@@ -42,15 +48,14 @@ for shinobi in data_list:
     characters.append(Character(shinobi,scale_factor))
 
 # Create lock buttons
-button_colour = (70,145,204)
 button_width = int(100 * scale_factor)
-button_height = int(40 * scale_factor)
-ninjutsu_button = LockButton(button_width, button_height,int(200 * scale_factor),int(175 * scale_factor),button_colour, 0, scale_factor, "Ninjutsu")
-genjutsu_button = LockButton(button_width, button_height,int(400 * scale_factor),int(175 * scale_factor),button_colour, 1, scale_factor, "Genjutsu")
-taijutsu_button = LockButton(button_width, button_height,int(600 * scale_factor),int(175 * scale_factor),button_colour, 2, scale_factor,"Taijutsu")
-battleiq_button = LockButton(button_width, button_height,int(200 * scale_factor),int(475 * scale_factor),button_colour, 3, scale_factor,"Battle IQ")
-kekkeigenkai_button = LockButton(button_width, button_height,int(400 * scale_factor),int(475 * scale_factor),button_colour, 4, scale_factor,"Kekkei Genkai")
-chakratype_button = LockButton(button_width, button_height,int(600 * scale_factor),int(475 * scale_factor),button_colour, 5, scale_factor,"Chakra  Type")
+button_height = int(42 * scale_factor)
+ninjutsu_button = LockButton(button_width, button_height,int(200 * scale_factor),int(175 * scale_factor), 0, scale_factor, "Ninjutsu")
+genjutsu_button = LockButton(button_width, button_height,int(400 * scale_factor),int(175 * scale_factor), 1, scale_factor, "Genjutsu")
+taijutsu_button = LockButton(button_width, button_height,int(600 * scale_factor),int(175 * scale_factor), 2, scale_factor,"Taijutsu")
+battleiq_button = LockButton(button_width, button_height,int(200 * scale_factor),int(475 * scale_factor), 3, scale_factor,"Battle IQ")
+kekkeigenkai_button = LockButton(button_width, button_height,int(400 * scale_factor),int(475 * scale_factor), 4, scale_factor,"Kekkei Genkai")
+chakratype_button = LockButton(button_width, button_height,int(600 * scale_factor),int(475 * scale_factor), 5, scale_factor,"Chakra  Type")
 
 button_list = [ninjutsu_button, battleiq_button,
                genjutsu_button, kekkeigenkai_button,
@@ -79,24 +84,7 @@ while running:
     screen.blit(main_text,((width/2 - main_text.get_width()/2),(height/2 - main_text.get_height()/2)))
     screen.blit(closed_scroll, (int(-3*scale_factor), int(229 * scale_factor)))
 # for loop through the event queue  
-    for event in pygame.event.get():
-        # Check for QUIT event      
-        if event.type == pygame.QUIT:
-            running = False
-            pygame.quit()
-        
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                pos = pygame.mouse.get_pos()
-                for b in button_list:
-                    if b.is_over(pos) and howManyFrames >= 20:
-                        pressedButtonPos = b.press()
-                        howManyFrames = 0
-                        b.shinobi = selected_list[b.pos]
-                        for k in range(len(toCheck)):
-                            if b.pos == toCheck[k]:
-                                toPop = k
-                        toCheck.pop(toPop)
+
 
 
 
@@ -139,7 +127,9 @@ while running:
             rank = "Shinobi God"
     if scored:
         if scroll_offset < 0:
-            scroll_offset += int(6 * scale_factor)
+            scroll_offset += int(12 * scale_factor)
+        else:
+            reset_button.draw(screen)
         screen.blit(shading_surf_end, (0,0))
         screen.blit(open_scroll, (int(-3 * scale_factor) + scroll_offset, int(229 * scale_factor)))
 
@@ -151,4 +141,37 @@ while running:
         screen.blit(closed_scroll,(int(-3*scale_factor),int(229 * scale_factor)))
     pygame.display.update()
     howManyFrames += 1
+
+    for event in pygame.event.get():
+        # Check for QUIT event
+        if event.type == pygame.QUIT:
+            running = False
+            pygame.quit()
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                pos = pygame.mouse.get_pos()
+                if not scored:
+
+                    for b in button_list:
+                        if b.is_over(pos) and howManyFrames >= 20:
+                            pressedButtonPos = b.press()
+                            howManyFrames = 0
+                            b.shinobi = selected_list[b.pos]
+                            for k in range(len(toCheck)):
+                                if b.pos == toCheck[k]:
+                                    toPop = k
+                            toCheck.pop(toPop)
+                else:
+                    if reset_button.is_over(pos):
+                        howManyFrames = 0
+                        toCheck = [0, 1, 2, 3, 4, 5]
+                        toPop = len(toCheck)
+                        scored = False
+                        total_score = 0
+                        rank = ""
+                        for b in button_list:
+                            b.unpress()
+
+
     clock.tick(60)

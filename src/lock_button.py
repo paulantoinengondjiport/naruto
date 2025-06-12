@@ -2,17 +2,19 @@ import pygame
 
 class LockButton:
     
-    def __init__(self, width, height, x, y, color, pos, scale, text=''):
+    def __init__(self, width, height, x, y, pos, scale, text=''):
         self.text = text
         self.height = height
         self.width = width
         self.isPressed = False
         self.x = x
         self.y = y
-        self.color = color
         self.scale = scale
-        self.button_sprite = pygame.transform.rotozoom(pygame.image.load("../img/unpressedbutton.png").convert_alpha(),0,scale)
+
         self.pressed_button_sprite = pygame.transform.rotozoom(pygame.image.load("../img/pressedbutton.png").convert_alpha(),0,scale)
+        self.unpressed_button_sprite = pygame.transform.rotozoom(
+            pygame.image.load("../img/unpressedbutton.png").convert_alpha(), 0, scale)
+        self.button_sprite = self.unpressed_button_sprite
         self.font = pygame.font.Font("../font/njnaruto.ttf", int(13 * scale))
         self.shinobi = None
         self.pos = pos
@@ -43,11 +45,11 @@ class LockButton:
     def press(self):
         if not self.isPressed:
             self.isPressed = True
-            red = self.color[0] * 0.7
-            green = self.color[1] * 0.7
-            blue = self.color[2] * 0.7
-            self.color = (red,green,blue)
             self.button_sprite = self.pressed_button_sprite
             return self.pos
         return None
-    
+
+    def unpress(self):
+        self.isPressed = False
+        self.button_sprite = self.unpressed_button_sprite
+        self.shinobi = None
